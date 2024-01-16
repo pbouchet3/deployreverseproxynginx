@@ -18,7 +18,7 @@ mail="${url/MAIL=/""}"
 read -p "Do you want to deploy front & backend? [N/y]" deployType
 
 deployType=$(echo "$deployType" | tr '[:upper:]' '[:lower:]')
-if [ "$deployType" = "y" || "$deployType" = "yes" ]; then
+if [ "$deployType" = "y" ] || [ "$deployType" = "yes" ]; then
 	read -p "Final subdomain name (ex:react to do 'react.$url) : " subdomain
 	read -p "File name (ex : react) : " file
 	read -p "Front end's port (ex:3000) : " portfront
@@ -69,7 +69,7 @@ if [ "$deployType" = "y" || "$deployType" = "yes" ]; then
 	echo Success ! you website is published at "$subdomain.$url" with https.
 	echo "Check if everythings works. Else, contact paul.bouchet3@gmail.com"
 
-elif [ "$deployType" = "n" || "$deployType" = "no" || "$deployType" = "" ]; then
+elif [ "$deployType" = "n" ] || [ "$deployType" = "no" ] || [ "$deployType" = "" ]; then
 	echo "Final subdomain name (ex:react to do 'react.$url)"
 	read -p "If you want to deploy default domain, keep empty : " subdomain
 	read -p "File name (ex : react) : " file
