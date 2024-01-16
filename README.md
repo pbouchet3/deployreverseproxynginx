@@ -1,1 +1,3 @@
 # deployreverseproxynginx
+
+just ./deployReverseProxy.sh
