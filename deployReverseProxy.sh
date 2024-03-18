@@ -121,8 +121,13 @@ elif [ "$deployType" = "n" ] || [ "$deployType" = "no" ] || [ "$deployType" = ""
 	  exit 1
 	fi
 	
-	sudo certbot --nginx --redirect -d "$subdomain.$url" --preferred-challenges http --agree-tos -n -m $mail --keep-until-expiring
-	
+
+	if [ -z "$subdomain" ]; then
+	  sudo certbot --nginx --redirect -d "$url" --preferred-challenges http --agree-tos -n -m $mail --keep-until-expiring
+        else
+	  sudo certbot --nginx --redirect -d "$subdomain.$url" --preferred-challenges http --agree-tos -n -m $mail --keep-until-expiring
+	fi
+
 	if [ $? -ne 0 ]; then
 	  echo "Can't certificate url"
 	  sudo rm /etc/nginx/sites-available/$file.conf
