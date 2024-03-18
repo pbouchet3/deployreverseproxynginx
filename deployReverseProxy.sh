@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$UID" -ne 0 ]; then
+    echo "You must be root to run this script"
+    exit 1
+fi
+
 url=""
 if [ ! -f .env ]; then
 	read -p "Enter your default URL here : " tmp
@@ -20,7 +25,14 @@ read -p "Do you want to deploy front & backend? [N/y]" deployType
 deployType=$(echo "$deployType" | tr '[:upper:]' '[:lower:]')
 if [ "$deployType" = "y" ] || [ "$deployType" = "yes" ]; then
 	read -p "Final subdomain name (ex:react to do 'react.$url) : " subdomain
-	read -p "File name (ex : react) : " file
+	read -p "Specify name for nginx configuration ? (default : subdomain name) [N/y] ? " fileName
+	fileName=$(echo "$fileName" | tr '[:upper:]' '[:lower:]')
+	if [ "$fileName" = "y" ] || [ "$fileName" = "yes" ]; then
+		read -p "File name (ex : react) : " file
+	elif [ "$fileName" = "n" ] || [ "$fileName" = "no" ] || [ "$fileName" = "" ]; then
+		file=$subdomain
+	fi
+	
 	read -p "Front end's port (ex:3000) : " portfront
 	read -p "Back end's port (ex:3001) : " portapi
 	
@@ -30,25 +42,25 @@ if [ "$deployType" = "y" ] || [ "$deployType" = "yes" ]; then
 	sed -i "s/internalPortFront/$portfront/" $file".conf"
 	sed -i "s/internalPorApit/$portapi/" $file".conf"
 	
-	cat $file.conf >> /etc/nginx/sites-available/$file.conf
+	sudo cat $file.conf >> /etc/nginx/sites-available/$file.conf
 	
-	ln -s /etc/nginx/sites-available/$file".conf" /etc/nginx/sites-enabled/$file".conf"
+	sudo ln -s /etc/nginx/sites-available/$file".conf" /etc/nginx/sites-enabled/$file".conf"
 	
-	nginx -t
+	sudo nginx -t
 	
 	if [ $? -ne 0 ]; then
 	  echo "Bad configuration of nginx"
-	  rm /etc/nginx/sites-available/$file.conf
-	  rm /etc/nginx/sites-enabled/$file.conf
+	  sudo rm /etc/nginx/sites-available/$file.conf
+	  sudo rm /etc/nginx/sites-enabled/$file.conf
 	  exit 1
 	fi
 	
-	systemctl restart nginx.service
+	sudo systemctl restart nginx.service
 	
 	if [ $? -ne 0 ]; then
 	  echo "Nginx can't restart"
-	  rm /etc/nginx/sites-available/$file.conf
-	  rm /etc/nginx/sites-enabled/$file.conf
+	  sudo rm /etc/nginx/sites-available/$file.conf
+	  sudo rm /etc/nginx/sites-enabled/$file.conf
 	  rm $file".conf"
 	  exit 1
 	fi
@@ -57,8 +69,8 @@ if [ "$deployType" = "y" ] || [ "$deployType" = "yes" ]; then
 	
 	if [ $? -ne 0 ]; then
 	  echo "Can't certificate url"
-	  rm /etc/nginx/sites-available/$file.conf
-	  rm /etc/nginx/sites-enabled/$file.conf
+	  sudo rm /etc/nginx/sites-available/$file.conf
+	  sudo rm /etc/nginx/sites-enabled/$file.conf
 	  rm $file".conf"
 	  exit 1
 	fi
@@ -72,7 +84,13 @@ if [ "$deployType" = "y" ] || [ "$deployType" = "yes" ]; then
 elif [ "$deployType" = "n" ] || [ "$deployType" = "no" ] || [ "$deployType" = "" ]; then
 	echo "Final subdomain name (ex:react to do 'react.$url)"
 	read -p "If you want to deploy default domain, keep empty : " subdomain
-	read -p "File name (ex : react) : " file
+	read -p "Specify name for nginx configuration ? (default : subdomain name) [N/y] ? " fileName
+	fileName=$(echo "$fileName" | tr '[:upper:]' '[:lower:]')
+	if [ "$fileName" = "y" ] || [ "$fileName" = "yes" ]; then
+		read -p "File name (ex : react) : " file
+	elif [ "$fileName" = "n" ] || [ "$fileName" = "no" ] || [ "$fileName" = "" ]; then
+		file=$subdomain
+	fi
 	read -p "App's port (ex:3000) : " port
 	
 	cp default.conf $file".conf"
@@ -80,26 +98,26 @@ elif [ "$deployType" = "n" ] || [ "$deployType" = "no" ] || [ "$deployType" = ""
 	sed -i "s/subdomainName/$subdomain/" $file".conf"
 	sed -i "s/internalPort/$port/" $file".conf"
 	
-	cat $file.conf >> /etc/nginx/sites-available/$file.conf
+	sudo cat $file.conf >> /etc/nginx/sites-available/$file.conf
 	
-	ln -s /etc/nginx/sites-available/$file".conf" /etc/nginx/sites-enabled/$file".conf"
+	sudo ln -s /etc/nginx/sites-available/$file".conf" /etc/nginx/sites-enabled/$file".conf"
 	
-	nginx -t
+	sudo nginx -t
 	
 	if [ $? -ne 0 ]; then
 	  echo "Bad configuration of nginx"
-	  rm /etc/nginx/sites-available/$file.conf
-	  rm /etc/nginx/sites-enabled/$file.conf
+	  sudo rm /etc/nginx/sites-available/$file.conf
+	  sudo rm /etc/nginx/sites-enabled/$file.conf
 	  exit 1
 	fi
 	
-	systemctl restart nginx.service
+	sudo systemctl restart nginx.service
 	
 	if [ $? -ne 0 ]; then
 	  echo "Nginx can't restart"
-	  rm /etc/nginx/sites-available/$file.conf
-	  rm /etc/nginx/sites-enabled/$file.conf
-	  rm $file".conf"
+	  sudo rm /etc/nginx/sites-available/$file.conf
+	  sudo rm /etc/nginx/sites-enabled/$file.conf
+	  sudo rm $file".conf"
 	  exit 1
 	fi
 	
@@ -107,8 +125,8 @@ elif [ "$deployType" = "n" ] || [ "$deployType" = "no" ] || [ "$deployType" = ""
 	
 	if [ $? -ne 0 ]; then
 	  echo "Can't certificate url"
-	  rm /etc/nginx/sites-available/$file.conf
-	  rm /etc/nginx/sites-enabled/$file.conf
+	  sudo rm /etc/nginx/sites-available/$file.conf
+	  sudo rm /etc/nginx/sites-enabled/$file.conf
 	  rm $file".conf"
 	  exit 1
 	fi
